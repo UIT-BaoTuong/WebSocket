@@ -8,9 +8,29 @@ const { Pool } = require("pg");
 const pool = new Pool({
     connectionString: "postgresql://neondb_owner:npg_GgWlpFN8TyH1@ep-frosty-thunder-a87ud9bk-pooler.eastus2.azure.neon.tech/neondb?sslmode=require"
 });
-async function saveMessage(user_id,user_name, content) {
+
+async function initializeDatabase() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS messages (
+        id SERIAL PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        user_name TEXT NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+    `);
+    console.log("✅ Database đã khởi tạo thành công!");
+  } catch (error) {
+    console.error("❌ Lỗi khởi tạo database:", error);
+  }
+}
+
+// 🚀 Gọi hàm khởi tạo database khi server bắt đầu
+initializeDatabase();
+async function saveMessage(user_id, user_name, content) {
     await pool.query(
-        "INSERT INTO messages (user_id, user_name, content, created_at) VALUES ($1, $2, NOW())",
+        "INSERT INTO messages (user_id, user_name, content, created_at) VALUES ($1, $2, $3, NOW())",
         [user_id,user_name, content]
     );
 }
