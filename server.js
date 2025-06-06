@@ -8,10 +8,10 @@ const { Pool } = require("pg");
 const pool = new Pool({
     connectionString: "postgresql://neondb_owner:npg_GgWlpFN8TyH1@ep-frosty-thunder-a87ud9bk-pooler.eastus2.azure.neon.tech/neondb?sslmode=require"
 });
-async function saveMessage(user_id, content) {
+async function saveMessage(user_id,user_name, content) {
     await pool.query(
-        "INSERT INTO messages (user_id, content, created_at) VALUES ($1, $2, NOW())",
-        [user_id, content]
+        "INSERT INTO messages (user_id, user_name, content, created_at) VALUES ($1, $2, NOW())",
+        [user_id,user_name, content]
     );
 }
 // Tạo server HTTP để chạy Express
@@ -32,7 +32,7 @@ wss.on('connection', ws => {
         try {
             const parsedMessage = JSON.parse(message);
             const responseMessage = {
-                user_id: parsedMessage.user_id || "Server",
+                user_name: parsedMessage.user_name || "Server",
                 content: `${parsedMessage.content}`,
                 created_at: new Date().toISOString()
             };
@@ -45,7 +45,7 @@ wss.on('connection', ws => {
             await saveMessage(responseMessage.user_id, responseMessage.content);
         } catch (error) {
             console.error("❌ Lỗi khi phân tích JSON:", error);
-            ws.send(JSON.stringify({ user_id: "Server", content: "Dữ liệu không hợp lệ!", created_at: new Date().toISOString() }));
+            ws.send(JSON.stringify({ user_name: "Server", content: "Dữ liệu không hợp lệ!", created_at: new Date().toISOString() }));
         }
     });
     ws.on('close', () => {
