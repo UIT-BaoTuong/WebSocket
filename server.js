@@ -52,6 +52,7 @@ wss.on('connection', ws => {
         try {
             const parsedMessage = JSON.parse(message);
             const responseMessage = {
+                user_id: parsedMessage.user_id,
                 user_name: parsedMessage.user_name || "Server",
                 content: `${parsedMessage.content}`,
                 created_at: new Date().toISOString()
@@ -62,7 +63,7 @@ wss.on('connection', ws => {
                     client.send(JSON.stringify(responseMessage));
                 }
             });
-            await saveMessage(responseMessage.user_id, responseMessage.content);
+            await saveMessage(responseMessage.user_id, responseMessage.user_name, responseMessage.content);
         } catch (error) {
             console.error("❌ Lỗi khi phân tích JSON:", error);
             ws.send(JSON.stringify({ user_name: "Server", content: "Dữ liệu không hợp lệ!", created_at: new Date().toISOString() }));
